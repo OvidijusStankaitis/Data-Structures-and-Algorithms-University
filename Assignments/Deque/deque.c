@@ -1,6 +1,6 @@
+#include <deque.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <deque.h>
 
 Node *newNode(int value)
 {
@@ -46,7 +46,7 @@ void pushRear(Deque *dq, int key)
 int popFront(Deque *dq) 
 {
     int value = 0; // Initialising the return value
-    if (dq->front == NULL) return; // Doesn't do anything if list is empty
+    if (dq->front == NULL) return -1; // Doesn't do anything if list is empty
     Node *temp = dq->front; // Sets temp to current front
     value = dq->front->data; // Return value is set to the data of front
     dq->front = dq->front->next; // Front is set to next, detaching the first element from the deque
@@ -59,7 +59,7 @@ int popFront(Deque *dq)
 int popRear(Deque *dq) 
 {
     int value = 0; // Initialising the return value
-    if (dq->rear == NULL) return; // Doesn't do anything if list is empty
+    if (dq->rear == NULL) return -1; // Doesn't do anything if list is empty
     Node *temp = dq->rear; // Sets temp to current rear
     value = dq->rear->data; // Return value is set to the data of rear
     dq->rear = dq->rear->prev; // Rear is set to prev, detaching the last element from the deque

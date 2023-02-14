@@ -12,8 +12,8 @@ typedef struct Deque
 } Deque;
 
 Deque *createDeque();
-void pushFront(struct Deque *dq, int key);
-void pushRear(Deque *dq, int key);
+void pushFront(struct Deque *dq, int value);
+void pushRear(Deque *dq, int value);
 int popFront(Deque *dq);
 int popRear(Deque *dq);
 int getFront(Deque *dq);
