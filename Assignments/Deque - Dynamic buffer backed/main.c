@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <deque.h>
 
-int main() {
+int main() 
+{
     Deque *dq = createDeque();
 
     pushFront(dq, 10);
     pushFront(dq, 20);
     pushFront(dq, 30);
+
+    // Deque *dq1 = clone(dq);
+
+    // clearD(dq);
 
     pushRear(dq, 40);
     pushRear(dq, 50);

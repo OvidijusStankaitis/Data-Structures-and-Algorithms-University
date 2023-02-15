@@ -159,3 +159,19 @@ int deleteDeque(Deque *dq)
 
     return 0;
 }
+
+void clearD(Deque *dq)
+{
+    dq->size = 0;
+    dq->buffer = (int*) realloc(dq->buffer, dq->size + 1 * sizeof(int));
+}
+
+Deque *clone(Deque *dq)
+{
+    Deque *dq2 = (Deque*) malloc(sizeof(Deque)); 
+    dq2->buffer = (int*) malloc(dq->size * sizeof(int)); 
+    dq2->buffer = dq->buffer;
+    dq2->size = dq->size; 
+    dq2->deleted = dq->deleted;
+    return dq2; 
+}

@@ -27,4 +27,8 @@ int getSize(Deque *dq);
 
 int deleteDeque(Deque *dq);
 
+void clearD(Deque *dq);
+
+Deque *clone(Deque *dq);
+
 #endif
