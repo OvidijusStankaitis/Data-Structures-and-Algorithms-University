@@ -12,7 +12,7 @@ struct Deque
 
 typedef struct Deque Deque;
 
-Deque *createDeque() 
+Deque *dequeCreate() 
 {
     Deque *dq = (Deque*) malloc(sizeof(Deque)); 
     dq->buffer = (int*) malloc(sizeof(int)); 
@@ -21,13 +21,13 @@ Deque *createDeque()
     return dq; 
 }
 
-bool isEmpty(Deque *dq) 
+bool dequeIsEmpty(Deque *dq) 
 {
-    if (dq->size == 0) return true;
+    if (dequeCount(dq) == 0) return true;
     return false; 
 }
 
-bool isFull(Deque *dq) 
+bool dequeIsFull(Deque *dq) 
 {
     int *newBuffer = (int*) malloc((dq->size + 1) * sizeof(int)); 
 
@@ -41,7 +41,7 @@ bool isFull(Deque *dq)
     return false;
 }
 
-int pushFront(Deque *dq, int value) 
+int dequePushFront(Deque *dq, int value) 
 {
     if(dq->deleted) return -1;
 
@@ -67,7 +67,7 @@ int pushFront(Deque *dq, int value)
     return 0;
 }
 
-int popFront(Deque *dq) 
+int dequePopFront(Deque *dq) 
 {
     if (dq->size == 0 || dq->deleted) return -1;
 
@@ -89,7 +89,7 @@ int popFront(Deque *dq)
     return value; 
 }
 
-int pushRear(Deque *dq, int value) 
+int dequePushRear(Deque *dq, int value) 
 {
     if(dq->deleted) return -1;
 
@@ -111,7 +111,7 @@ int pushRear(Deque *dq, int value)
     return 0;
 }
 
-int popRear(Deque *dq) 
+int dequePopRear(Deque *dq) 
 {
     if (dq->size == 0 || dq->deleted) return -1; 
 
@@ -126,25 +126,25 @@ int popRear(Deque *dq)
     return value;                              
 }
 
-int getFront(Deque *dq) 
+int dequeGetFront(Deque *dq) 
 {
     if (dq->size == 0 || dq->deleted) return -1; 
     return dq->buffer[0]; 
 }
 
-int getRear(Deque *dq) 
+int dequeGetRear(Deque *dq) 
 {
     if (dq->size == 0 || dq->deleted) return -1; 
     return dq->buffer[dq->size - 1]; 
 }
 
-int getSize(Deque *dq) 
+int dequeCount(Deque *dq) 
 {
     if (dq->deleted) return -1;
     return dq->size; 
 }
 
-int deleteDeque(Deque *dq) 
+int dequeDone(Deque *dq) 
 {
     if (dq->deleted) return -1;
             
@@ -160,13 +160,13 @@ int deleteDeque(Deque *dq)
     return 0;
 }
 
-void clearD(Deque *dq)
+void dequeClear(Deque *dq)
 {
     dq->size = 0;
     dq->buffer = (int*) realloc(dq->buffer, dq->size + 1 * sizeof(int));
 }
 
-Deque *clone(Deque *dq)
+Deque *dequeClone(Deque *dq)
 {
     Deque *dq2 = (Deque*) malloc(sizeof(Deque)); 
     dq2->buffer = (int*) malloc(dq->size * sizeof(int)); 
@@ -174,4 +174,28 @@ Deque *clone(Deque *dq)
     dq2->size = dq->size; 
     dq2->deleted = dq->deleted;
     return dq2; 
+}
+
+char *dequeToString(Deque *dq)
+{
+    char *string = (char*) malloc(dq->size * sizeof(char));
+
+    int u = 0;
+    for(int i = 0; i < dq->size; i++)
+    {
+        int num = dq->buffer[i];
+
+        while (num != 0)
+        {
+            string[u] = num / 10 + '0'; 
+            num /= 10; 
+            u++;
+        }
+        string[u] = ' ';
+        u++;
+    }
+
+    string[u - 1] = '\0';
+
+    return string;
 }

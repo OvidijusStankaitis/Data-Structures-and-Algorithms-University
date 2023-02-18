@@ -5,30 +5,32 @@
 
 typedef struct Deque Deque;
 
-Deque *createDeque();
+Deque *dequeCreate();
 
-bool isEmpty(Deque *dq);
+bool dequeIsEmpty(Deque *dq);
 
-bool isFull(Deque *dq);
+bool dequeIsFull(Deque *dq);
 
-int pushFront(Deque *dq, int value);
+int dequePushFront(Deque *dq, int value);
 
-int popFront(Deque *dq);
+int dequePopFront(Deque *dq);
 
-int pushRear(Deque *dq, int value);
+int dequePushRear(Deque *dq, int value);
 
-int popRear(Deque *dq);
+int dequePopRear(Deque *dq);
 
-int getFront(Deque *dq);
+int dequeGetFront(Deque *dq);
 
-int getRear(Deque *dq);
+int dequeGetRear(Deque *dq);
 
-int getSize(Deque *dq);
+int dequeCount(Deque *dq);
 
-int deleteDeque(Deque *dq);
+int dequeDone(Deque *dq);
 
-void clearD(Deque *dq);
+void dequeClear(Deque *dq);
 
-Deque *clone(Deque *dq);
+Deque *dequeClone(Deque *dq);
+
+char *dequeToString(Deque *dq);
 
 #endif
