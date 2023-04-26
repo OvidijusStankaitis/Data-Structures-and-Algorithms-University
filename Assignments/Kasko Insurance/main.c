@@ -2,115 +2,216 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
-#include <math.h>
 
 #include "LongNumber.h"
-#include "PriorityQueue.h"
+#include "pq.h"
 
-#define SIMULATION_COUNT 1000000
-
-int total1 = 0;
-int total2 = 0;
+#define SIMULATION 10
+#define OPEN 8
+#define CLOSED 17
 
 typedef struct {
     LongNumber A;
     LongNumber A1;
-    LongNumber B;
+    LongNumber A2;
     int U;
     int K;
-    double T1;
-    double T2;
-    int TR_min;
-    int TR_max;
+    int T1;
+    int T2;
 } SimulationData;
 
+typedef struct {
+    int id;
+    int vip;
+    int hoursLeft;
+} Client;
+
+int random_repair_time(SimulationData *data);
 void *withContract(void *arg);
 void *withoutContract(void *arg);
-int random_repair_time(SimulationData* data);
+void process_clients(LongNumber *profit, SimulationData *data, int with_vip_clients);
 
-int main() 
+LongNumber total1;
+LongNumber total2;
+
+int main(int argc, char *argv[])
 {
+    if (argc < 2) {
+        printf("Usage: input.txt\n");
+        return 1;
+    }
+
+    FILE *fp = fopen(argv[1], "r");
+
+    if (fp == NULL)
+    {
+        printf("Cannot open file %s\n", argv[1]);
+        return 1;
+    }
+
     srand(time(NULL));
 
-    int A = 1000;
-    int A1 = 200;
-    int B = 800;
-    int U = 15;
-    int K = 10;
-    double T1 = 0.3;
-    double T2 = 0.7;
+    int A, A1, U, K, T1, T2;
+
+    fscanf(fp, "%d", &A);
+    fscanf(fp, "%d", &A1);
+    fscanf(fp, "%d", &U);
+    fscanf(fp, "%d", &K);
+    fscanf(fp, "%d", &T1);
+    fscanf(fp, "%d", &T2);
+
+    int A2 = A - A1;
+
+    fclose(fp);
 
     SimulationData data;
     data.A = longNumberCreateFromLL(A);
     data.A1 = longNumberCreateFromLL(A1);
-    data.B = longNumberCreateFromLL(B);
+    data.A2 = longNumberCreateFromLL(A2);
     data.U = U;
     data.K = K;
     data.T1 = T1;
     data.T2 = T2;
-    data.TR_min = 1;
-    data.TR_max = 5 * K;
 
     pthread_t withContractThread, withoutContractThread;
 
-    // Create the threads for each strategy
     pthread_create(&withContractThread, NULL, withContract, (void *)&data);
     pthread_create(&withoutContractThread, NULL, withoutContract, (void *)&data);
 
-    // Wait for both threads to finish
     pthread_join(withContractThread, NULL);
     pthread_join(withoutContractThread, NULL);
 
-    printf("After 1000000 clients the results were: \n");
-    printf("Total income with contract: %d \n", total1);
-    printf("Total income without contract: %d \n\n", total2);
+    printf("After %d days the results were: \n", SIMULATION);
+    printf("Total income with contract (VIP): %s \n", longNumberConvertToString(total1));
+    printf("Total income without contract (NOT VIP): %s \n\n", longNumberConvertToString(total2));
 
-    if(total1 > total2)
+    if (longNumberCompare(total1, total2) > 0)
     {
-        printf("Total income with contract was more beneficial\n");
+        printf("Total income with contract (VIP) was more beneficial\n");
     }
-
     else
     {
-        printf("Total income without contract was more beneficial\n");
+        printf("Total income without contract (NOT VIP) was more beneficial\n");
     }
+
+    longNumberFree(data.A);
+    longNumberFree(data.A1);
+    longNumberFree(data.A2);
+    longNumberFree(total1);
+    longNumberFree(total2);
 
     return 0;
 }
 
-int random_repair_time(SimulationData* data) {
-    return (rand() % (data->TR_max - data->TR_min + 1)) + data->TR_min;
+int random_repair_time(SimulationData *data)
+{
+    return (rand() % (data->K - data->U + 1)) + data->U;
 }
 
-void *withContract(void *arg) 
+void process_clients(LongNumber *profit, SimulationData *data, int with_vip_clients)
+{
+    int hour = 0;
+    int day = 0;
+    int id = 0;
+    ADT *pq = createADT();
+    srand(time(NULL));
+
+    Client clients[MAX_SIZE] = {0};
+    int client_count = 0;
+
+    while (day != SIMULATION)
+    {
+        if (hour >= OPEN && hour <= CLOSED && !isFull(pq))
+        {
+            if (rand() % 100 < data->T1 && with_vip_clients)
+            {
+                clients[client_count].id = id++;
+                clients[client_count].vip = 1;
+                clients[client_count].hoursLeft = random_repair_time(data);
+                *profit = longNumberAdd(*profit, longNumberSubtract(data->A, data->A1));
+                insert(pq, clients[client_count].id, 0);
+                client_count++;
+            }
+            if (rand() % 100 < data->T2)
+            {
+                clients[client_count].id = id++;
+                clients[client_count].vip = 0;
+                clients[client_count].hoursLeft = random_repair_time(data);
+                *profit = longNumberAdd(*profit, data->A);
+                insert(pq, clients[client_count].id, 1);
+                client_count++;
+            }
+        }
+
+        int workersLeft = data->K;
+
+        while (!isEmpty(pq) && workersLeft)
+        {
+            char client_str[20];
+            strcpy(client_str, extract(pq));
+
+            int client_id;
+            sscanf(client_str, "%*[^0-9]%d", &client_id);
+
+            int client_index = -1;
+            for (int i = 0; i < client_count; i++)
+            {
+                if (clients[i].id == client_id)
+                {
+                    client_index = i;
+                    break;
+                }
+            }
+
+            if (client_index == -1)
+            {
+                continue;
+            }
+
+            Client *client = &clients[client_index];
+
+            if (hour >= OPEN && hour <= CLOSED && workersLeft)
+            {
+                --workersLeft;
+                *profit = longNumberSubtract(*profit, longNumberCreateFromLL(data->U));
+                client->hoursLeft--;
+            }
+
+            if (hour > CLOSED && client->vip && workersLeft)
+            {
+                --workersLeft;
+                *profit = longNumberSubtract(*profit, longNumberCreateFromLL(data->U * 2));
+                client->hoursLeft--;
+            }
+
+            if (client->hoursLeft <= 0)
+            {
+                client->id = -1;
+            }
+        }
+
+        hour = (hour + 1) % 24;
+        if (hour == 0)
+        {
+            ++day;
+        }
+    }
+    doneADT(pq);
+}
+
+
+void *withContract(void *arg)
 {
     SimulationData *data = (SimulationData *)arg;
-    double total_income = 0;
-
-    for(int i = 0; i < SIMULATION_COUNT * data->T1; i++) 
-    {   
-        int repair_time = random_repair_time(data);
-        total_income += longNumberConvertToLL(data->A);
-        total_income -= longNumberConvertToLL(data->A1);
-        total_income -= data->U * repair_time * 2;
-    }
-
-    total1 = total_income;
+    total1 = longNumberCreateFromLL(0);
+    process_clients(&total1, data, 1);
     return NULL;
 }
 
-void *withoutContract(void *arg) 
+void *withoutContract(void *arg)
 {
     SimulationData *data = (SimulationData *)arg;
-    double total_income = 0;
-
-    for(int i = 0; i < SIMULATION_COUNT * data->T2; i++) 
-    {
-        int repair_time = random_repair_time(data);
-        total_income += longNumberConvertToLL(data->B);
-        total_income -= data->U * repair_time;
-    }
-
-    total2 = total_income;
+    total2 = longNumberCreateFromLL(0);
+    process_clients(&total2, data, 0);
     return NULL;
 }
