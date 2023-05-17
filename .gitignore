@@ -1,11 +1,7 @@
 *.gch
 *.out
-Assignments/Deque - Linked list backed (Incomplete)
-*.odt*
+*.odt
 *.txt
 *.zip
-*.docx
-*.pdf
-*.bat
-*.xlsx
-Assignments/Kasko Insurance/README.md
+Assignments/Graph algorithm/PSP
+Assignments/Graph algorithm/__pycache__
