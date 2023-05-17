@@ -37,7 +37,7 @@ make
 make run
 ```
 
-- ### Or run the program (ONLY WORKS ON WINDOWS) by executing GO.cmd file.
+- ### Or run the program by executing GO.cmd file.
 
 - ### Check the output file to view the original graph and the generated MST.
 
@@ -122,7 +122,7 @@ run:
 	$(PYTHON) $(PYC) $(INPUT) $(OUTPUT)
 ```
 
-- ### GO.cmd: executes makefile (ONLY WORKS ON WINDOWS).
+- ### GO.cmd: executes makefile.
 
 ```cmd
 @echo off
